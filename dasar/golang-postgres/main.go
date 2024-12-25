@@ -61,13 +61,13 @@ func main()  {
 	fmt.Println("Succesfully connect to database")
 
 	// 4. creating table
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS produk(  // create table with exec
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS produk(  
 			id SERIAL PRIMARY KEY,
 			nama VARCHAR(255),
 			kategori VARCHAR(50),
 			harga INT
 		)
-	`)
+	`) // create table with exec
 	if err != nil {
 		fmt.Printf("Failed to create table: %v\n", err)
 		os.Exit(1)
@@ -157,7 +157,6 @@ func main()  {
 	}
 	tx.Commit()
 	fmt.Println("Transaction success")
-
 
 
 }
