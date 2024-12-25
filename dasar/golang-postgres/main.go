@@ -4,9 +4,28 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
+
+/* 0. terminal command to open db in docker
+docker run --name postgresql \-e POSTGRES_USER=postgres \-e POSTGRES_PASSWORD=password \-e POSTGRES_DB=database \-p 5432:5432 -d postgres:16
+su postgres
+psql -U postgres -W
+
+PostgreSQL Commands Reference:
+
+| Command    | Description                                 |
+|------------|---------------------------------------------|
+| \h         | Menampilkan bantuan                        |
+| \l         | Menampilkan daftar database                |
+| \c nama    | Menghubungkan ke database tertentu         |
+| \dt        | Menampilkan daftar table yang ada          |
+| \d nama    | Menampilkan daftar kolom dalam sebuah table|
+| \q         | Keluar dari PostgreSQL                     |
+
+*/
 
 // 3. struct for saving data
 type Product struct {
@@ -26,6 +45,12 @@ func main()  {
 	}
 	defer db.Close() // last. defer to close db
 
+	// 0.1. set pooling time uptime for db
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxIdleTime(15 * time.Minute)
+	db.SetConnMaxLifetime(1 * time.Hour)
+
 	// 2. ping to db
 	err = db.Ping()
 	if err != nil {
@@ -36,7 +61,7 @@ func main()  {
 	fmt.Println("Succesfully connect to database")
 
 	// 4. creating table
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS produk(
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS produk(  // create table with exec
 			id SERIAL PRIMARY KEY,
 			nama VARCHAR(255),
 			kategori VARCHAR(50),
@@ -51,7 +76,7 @@ func main()  {
 	fmt.Println("Table successfully created")
 	
 	// 5. insert data
-	_, err = db.Exec(`INSERT INTO produk (nama, kategori, harga) VALUES($1, $2, $3)`, "Kertas A4", "Kertas", 35000)
+	_, err = db.Exec(`INSERT INTO produk (nama, kategori, harga) VALUES($1, $2, $3)`, "Kertas A4", "Kertas", 35000)   // insert data with exec 
 	if err != nil {
 		fmt.Printf("Failed to insert data: %v\n", err)
 		os.Exit(1)
@@ -60,14 +85,14 @@ func main()  {
 
 
 	// 6. read from db
-	row := db.QueryRow(`SELECT id, nama, kategori, harga FROM produk WHERE id = $1`, 1)  // queryRow func only take 1 row
+	row := db.QueryRow(`SELECT id, nama, kategori, harga FROM produk WHERE id = $1`, 1)  // queryRow func only take 1 row   // use queryRow when only read 1 row
 	if row == nil {
 		fmt.Println("Failed to reading from db")
 	}
 
 	// 7. assign data that we write to var with our struct 
 	var product1 Product 
-	err = row.Scan(&product1.ID, &product1.Nama, &product1.Kategori, &product1.Harga)
+	err = row.Scan(&product1.ID, &product1.Nama, &product1.Kategori, &product1.Harga)  // read with scan 
 	if err != nil {
 		fmt.Println("Failed to catch data from db")
 		os.Exit(1)
@@ -116,4 +141,23 @@ func main()  {
 	}
 
 	fmt.Println("Succesfully deleted the data")
+
+
+	// 11. make sql transaction 
+	tx, err := db.Begin()  // transaction begin to start
+	if err != nil {
+		fmt.Printf("Failed to make transaction: %v\n", err)
+		os.Exit(1)
+	}
+	_, err = tx.Exec(`DELETE FROM produk WHERE id = $1`, 2)  // with exec func, type query as params
+	if err != nil {
+		fmt.Printf("Failed to make transaction: %v\n", err)
+		tx.Rollback()
+		os.Exit(1)
+	}
+	tx.Commit()
+	fmt.Println("Transaction success")
+
+
+
 }
