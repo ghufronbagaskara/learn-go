@@ -35,5 +35,57 @@ func main()  {
 	db.AutoMigrate(&Produk{})
 	fmt.Println("Table has been made")
 
+	// 2. adding data using create 
+	produk := Produk{Nama: "Stik PS", Kategori: "Perabot", Harga: 70098}
+	result := db.Create(&produk)
+	if result.Error != nil {
+		fmt.Printf("Failed to create table: %v\n", result.Error)
+		os.Exit(1)
+	}
+	fmt.Println("Successfully adding data to table")
+	
+	// 3. select data
+	var selectedProduk Produk
+	result = db.First(&selectedProduk, 2)
+	if result.Error != nil {
+		fmt.Printf("Failed to select data: %v\n", result.Error)
+		os.Exit(1)
+	}
+	fmt.Println(selectedProduk)
+
+
+	// 4. select data more than 1
+	var produkSlice []Produk
+	result = db.Find(&produkSlice, []uint{1,4}) // select a few data with index
+	if result.Error != nil {
+		fmt.Printf("Failed to catch a few data : %v \n", result.Error)
+		os.Exit(1)
+	}
+	fmt.Println(produkSlice)
+
+	// 4. another form for search, using where
+	result = db.Where(map[string]interface{}{"id":6}).Find(&produkSlice)
+	if result.Error != nil {
+		fmt.Printf("Failed to catch a few data : %v \n", result.Error)
+		os.Exit(1)
+	}
+	fmt.Println(produkSlice)
+
+
+	// 5. update data
+	result = db.Model(&Produk{ID:1}).Updates(&Produk{Nama: "Samsung a5", Kategori: "Smartphone", Harga: 120000000})
+	if result.Error != nil {
+		fmt.Printf("Failed to catch a few data : %v \n", result.Error)
+		os.Exit(1)
+	}
+
+
+	// 6. delete from db
+	result = db.Delete(Produk{ID:1})
+	if result.Error != nil {
+		fmt.Printf("Failed to delete data : %v \n", result.Error)
+		os.Exit(1)
+	}
+
 
 }
