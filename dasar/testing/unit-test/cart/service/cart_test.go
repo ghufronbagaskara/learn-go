@@ -46,3 +46,6 @@ func TestShoppingCart_AddItemToCart_Success_WithStub(t *testing.T){
 	err := shoppingCartService.AddItemToCart(context.Background(), "user-3", "product-c")
 	assert.NoError(t, err, "it should return any error")
 }
+
+
+// 
