@@ -10,6 +10,27 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
+
+func TestXenditPayment_SendPaymentRequest_IncompletedRequestData(t *testing.T){
+	
+}
+
+func TestXenditPayment_SendPaymentRequest_CompleteRequestData_ButGot500(t *testing.T){
+
+}
+
+func TestXenditPayment_SendPaymentRequest_CompleteRequestData_Got500_ButEmptyResponseBody(t *testing.T){
+	
+}
+
+func TestXenditPayment_SendPaymentRequest_CompleteRequestData_ButGotBrokenResponseBody(t *testing.T){
+	
+}
+
+func TestXenditPayment_SendPaymentRequest_SuccessResponse(t *testing.T){
+	
+}
+
 func TestXenditPayment_SendPaymentRequest(t *testing.T){
 	httpClientMock := mock.NewMockHttpConector(gomock.NewController(t))
 	host := "http://mock.server"
