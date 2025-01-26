@@ -10,12 +10,12 @@ import (
 
 type XenditPayment struct{
 	host string
-	httpConnector HttpConnector
+	httpConector HttpConector
 }
 
-func NewXenditClient(httpsConnector HttpConnector, host string) XenditPayment {
+func NewXenditClient(httpConector HttpConector, host string) XenditPayment {
 	return XenditPayment{
-		httpConnector: httpsConnector,
+		httpConector: httpConector,
 		host: host,
 	}
 }
@@ -70,4 +70,12 @@ func (x *XenditPayment) SendPaymentRequest(ctx context.Context) (paymentID strin
 
 	endpoint := fmt.Sprintf("%s%s",x.host, "/payment_requests")
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, reqBody)
+
+	res, err := x.httpConector.Do(httpReq)
+	if err != nil {
+		return "", err
+	}
+
+	_ = res 
+	return "", err
 }
