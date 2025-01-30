@@ -16,6 +16,10 @@ func fetchPricing() {
 	wg.Add(1)
 	indosatPricingResult, indosatErr := FetchIndosatAPI(&wg)
 
+	// go func (wg *sync.WaitGroup) {
+	// 	indosatPricingResult, indosatErr := FetchIndosatAPI(&wg)
+	// }(&wg)
+
 	wg.Add(1)
 	telkomselPricingResult, telkomselErr := FetchTelkomselAPI(&wg)
 
