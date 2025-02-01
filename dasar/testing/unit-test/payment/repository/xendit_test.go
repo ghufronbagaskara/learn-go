@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"net/http"
 	"testing"
 	"unit-test/payment/repository/mock"
 
@@ -10,7 +11,40 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
+// Negative Test Case
+// sending request with empty auth header
+// sending request with invalid auth header
+// sending request with valid auth header
+// sending request with empty request body
+// sending request with broken request body
+// sending request with incomplete
+// sending request with invalid request body (missing some request field)
+// sending request with duplicate referenceID
+// sending request with inactive channel_code: BCA
 
+// Positive Test Case
+// sending with complete and valid request body
+
+// Edge Case
+// TODO: find the edge cases
+
+
+func TestXenditPayment_SendPaymentRequest_WithEmptyAuthHeader(t *testing.T){
+	httpClient := &http.Client{}
+	hostName := "https://api.xendit.co"
+
+	xenditClient := NewXenditClient(httpClient, hostName)
+	ctx := context.Background()
+	paymentID, err := xenditClient.SendPaymentRequest(ctx)
+	if err != nil {
+		t.Fatalf("it should not return error, but got %s", err.Error())
+	}
+
+	if paymentID == ""{
+		t.Errorf("it should return empty paymentID %s", paymentID)
+	}
+}
+	
 func TestXenditPayment_SendPaymentRequest_IncompletedRequestData(t *testing.T){
 	
 }
