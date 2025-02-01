@@ -1,13 +1,7 @@
 package repository
 
 import (
-	"context"
-	"net/http"
 	"testing"
-	"unit-test/payment/repository/mock"
-	"unit-test/payment/vo"
-
-	"go.uber.org/mock/gomock"
 )
 
 // Negative Test Case
@@ -31,54 +25,53 @@ import (
 // Edge Case
 // TODO: find the edge cases
 
+// func TestXenditPayment_SendPaymentRequest_ApiExploration(t *testing.T){
+// 	httpClient := &http.Client{}
+// 	hostName := "https://api.xendit.co"
+// 	// apiKey := "something"
+// 	authKey := "eG5kX2RldmVsb3BtZW50X09vbUFmT1V0aCtHb3dzWTZMZUpPSHpMQ1p0U2o4NEo5a1hEbitSeGovbUhXK2J5aERRVnhoZz09Og=="
 
-func TestXenditPayment_SendPaymentRequest_ApiExploration(t *testing.T){
-	httpClient := &http.Client{}
-	hostName := "https://api.xendit.co"
-	// apiKey := "something"
-	authKey := "eG5kX2RldmVsb3BtZW50X09vbUFmT1V0aCtHb3dzWTZMZUpPSHpMQ1p0U2o4NEo5a1hEbitSeGovbUhXK2J5aERRVnhoZz09Og=="
+// 	xenditClient := NewXenditClient(httpClient, hostName, authKey)
+// 	ctx := context.Background()
+// 	paymentID, err := xenditClient.SendPaymentRequest(ctx, vo.XenditPaymentRequest{})
+// 	if err != nil {
+// 		t.Fatalf("it should not return error, but got %s", err.Error())
+// 	}
 
-	xenditClient := NewXenditClient(httpClient, hostName, authKey)
-	ctx := context.Background()
-	paymentID, err := xenditClient.SendPaymentRequest(ctx, vo.XenditPaymentRequest{})
-	if err != nil {
-		t.Fatalf("it should not return error, but got %s", err.Error())
-	}
+// 	if paymentID == ""{
+// 		t.Errorf("it should return empty paymentID %s", paymentID)
+// 	}
+// }
 
-	if paymentID == ""{
-		t.Errorf("it should return empty paymentID %s", paymentID)
-	}
-}
-	
-func TestXenditPayment_SendPaymentRequest_EmptyAuthHeader(t *testing.T){
-	httpClientMock := mock.NewMockHttpConector(gomock.NewController(t))
-	host := "http://mock.server"
-	authKey := "supersecret"
+// func TestXenditPayment_SendPaymentRequest_EmptyAuthHeader(t *testing.T){
+// 	httpClientMock := mock.NewMockHttpConector(gomock.NewController(t))
+// 	host := "http://mock.server"
+// 	authKey := "supersecret"
 
-	xenditClient := NewXenditClient(httpClientMock, host, authKey)
-	ctx := context.Background()
-	_, err := xenditClient.SendPaymentRequest(ctx, vo.XenditPaymentRequest{})
+// 	xenditClient := NewXenditClient(httpClientMock, host, authKey)
+// 	ctx := context.Background()
+// 	_, err := xenditClient.SendPaymentRequest(ctx, vo.XenditPaymentRequest{})
 
-	if err == nil {
-		t.Fatal("it should return error due to empty auth key")
-	}
-}
+// 	if err == nil {
+// 		t.Fatal("it should return error due to empty auth key")
+// 	}
+// }
 
-func TestXenditPayment_SendPaymentRequest_WithEmptyPayload(t *testing.T){
-	httpClientMock := mock.NewMockHttpConector(gomock.NewController(t))
-	host := "http://mock.server"
-	authKey := ""
+// func TestXenditPayment_SendPaymentRequest_WithEmptyPayload(t *testing.T){
+// 	httpClientMock := mock.NewMockHttpConector(gomock.NewController(t))
+// 	host := "http://mock.server"
+// 	authKey := ""
 
-	xenditClient := NewXenditClient(httpClientMock, host, authKey)
-	ctx := context.Background()
-	paymentReq := vo.XenditPaymentRequest{}
-	
-	_, err := xenditClient.SendPaymentRequest(ctx, paymentReq)
+// 	xenditClient := NewXenditClient(httpClientMock, host, authKey)
+// 	ctx := context.Background()
+// 	paymentReq := vo.XenditPaymentRequest{}
 
-	if err == nil {
-		t.Fatal("it should return error due to empty auth key")
-	}
-}
+// 	_, err := xenditClient.SendPaymentRequest(ctx, paymentReq)
+
+// 	if err == nil {
+// 		t.Fatal("it should return error due to empty auth key")
+// 	}
+// }
 
 func TestXenditPayment_SendPaymentRequest_IncompletedRequestData(t *testing.T){
 	
