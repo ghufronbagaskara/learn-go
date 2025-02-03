@@ -78,6 +78,6 @@ func (s *XendiPaymentTestSuite) TestXenditPayment_SendPaymentRequest_ErrorWhileS
 	}
 	_, gotErr := s.xenditCLient.SendPaymentRequest(s.ctx, paymentRequest)
 	s.Error(gotErr, "it should return error due to http failure")
-	s.ErrorContains(gotErr, "failure")
+	s.ErrorContains(gotErr, "failure") 
 }
 
