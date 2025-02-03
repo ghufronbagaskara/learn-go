@@ -50,5 +50,27 @@ func TestHaversine(t *testing.T) {
 }
 
 
+// benchmarking
+func BenchmarkHaversine(b *testing.B){
+	for i := 0; i < 1000; i++ {
+		geo.Haversine(-6.176421464109725, 106.8230166265814, -6.136538249584232, 106.81373546121458)
+	}
+}
 
+
+func BenchmarkSperichalLawOfCosines(b *testing.B){
+	for i := 0; i < 1000; i++ {
+		geo.SphericalLawOfCosines(-6.176421464109725, 106.8230166265814, -6.136538249584232, 106.81373546121458)
+	}
+}
+
+// to run benchmark: go test ./kit/geo/geo_test.go -bench=. -benchmem -run=none
+
+// result:
+// imperion@imperion  ~/programming/go/dasar/testing   main ±  go test ./kit/geo/geo_test.go -bench=. -benchmem -run=none
+// goos: linux
+// goarch: amd64
+// cpu: 13th Gen Intel(R) Core(TM) i7-13700HX
+// BenchmarkHaversine-24                   1000000000               0.0000414 ns/op               0 B/op          0 allocs/op
+// BenchmarkSperichalLawOfCosines-24       1000000000               0.0000346 ns/op               0 B/op          0 allocs/op
 
