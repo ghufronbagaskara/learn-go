@@ -1,8 +1,8 @@
 package geo_test
 
 import (
-	"intro/testing/kit/geo"
 	"testing"
+	"unit-test/kit/geo"
 
 	"github.com/stretchr/testify/assert"
 )
