@@ -6,3 +6,8 @@ docker-up:
 
 docker-down:
 	docker-compose down
+
+docker-restart:
+	docker-compose down
+	docker-compose build
+	docker-compose up -d

@@ -1,5 +1,5 @@
 # Use the official Golang image to create a build artifact.
-FROM golang:1.23.3 as builder
+FROM golang:1.23.3 as first_stage
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
@@ -11,18 +11,18 @@ COPY . .
 RUN go mod tidy
 
 # Build the Go app for Linux, since we'll run the server on linux alpine
-RUN GOOS=linux GOARCH=amd64 go build -o microservice .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o microservice .
 
 # Start a new stage from scratch
-FROM alpine:latest
+FROM alpine:latest as second_stage
 
-WORKDIR /opt/
+WORKDIR /opt
 
 # # Copy the Pre-built binary file from the previous stage
-COPY --from=builder /app/microservice /opt/
+COPY --from=first_stage /app/microservice .
 
 # # Expose port 1000 to the outside world
-EXPOSE 1000
+EXPOSE 8080
 
 # Command to run the executable
 CMD ["/opt/microservice"]

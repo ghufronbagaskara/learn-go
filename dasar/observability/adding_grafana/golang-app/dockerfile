@@ -11,18 +11,18 @@ COPY . .
 RUN go mod tidy
 
 # Build the Go app for Linux, since we'll run the server on linux alpine
-RUN GOOS=linux GOARCH=amd64 go build -o microservice .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o microservice .
 
 # Start a new stage from scratch
 FROM alpine:latest
 
-WORKDIR /opt/
+WORKDIR /app
 
 # # Copy the Pre-built binary file from the previous stage
-COPY --from=builder /app/microservice /opt/microservice
+COPY --from=builder /app/microservice .
 
 # # Expose port 1000 to the outside world
 EXPOSE 8080
 
 # Command to run the executable
-CMD ["/opt/microservice"]
+ENTRYPOINT ["/app/microservice"]

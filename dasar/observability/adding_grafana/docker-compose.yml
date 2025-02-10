@@ -21,7 +21,7 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus/data # ubah path
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'`
+      - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus/data' # tambahkan ini
     networks:
       - experiment
@@ -36,11 +36,13 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=grafana
     volumes:
       - ./docker/grafana/datasources:/etc/grafana/provisioning/datasources
-      - grafana_data:/var/lib/grafana # ubah ini
+      - ./docker/grafana:/var/lib/grafana # ubah ini
     networks:
       - experiment
 
 # Tambahkan ini di level teratas file docker-compose.yml
 volumes:
   prometheus_data:
+    driver: local
   grafana_data:
+    driver: local

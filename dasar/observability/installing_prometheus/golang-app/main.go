@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -15,6 +16,7 @@ func main() {
 		w.Write([]byte(`pong`))
 	})
 
-	http.ListenAndServe(":1000", nil)
+	err := http.ListenAndServe(":8080", nil)
+	fmt.Printf("Server error: %s", err)
 	println("stopped http server")
 }
