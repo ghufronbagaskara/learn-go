@@ -15,6 +15,9 @@ func main() {
 		w.Write([]byte(`pong`))
 	})
 
-	http.ListenAndServe(":1000", nil)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		println("Error starting server:", err)
+	}
 	println("stopped http server")
 }
