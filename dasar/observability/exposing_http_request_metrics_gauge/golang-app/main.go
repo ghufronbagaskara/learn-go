@@ -15,10 +15,12 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+const serviceName = "golang_app"
+
 var (
 	metricCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: "golang_app",
+			Namespace: serviceName,
 			Name:      "http_request_count",
 		},
 		[]string{"method", "path", "code"},
@@ -26,16 +28,26 @@ var (
 
 	metricGauge = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Namespace: "golang_app",
+			Namespace: serviceName,
 			Name:      "active_users",
 		},
 		[]string{"country_id", "city_id"},
+	)
+
+	// usecase: order processing duration summary
+	metricSummary = prometheus.NewSummary(
+		prometheus.SummaryOpts{
+			Namespace:  serviceName,
+			Name:       "order_processing_duration",
+			Objectives: map[float64]float64{0.5: 0.5, 0.9: 0.1, 0.99: 0.001},
+		},
 	)
 )
 
 func init() {
 	prometheus.MustRegister(metricCounter)
 	prometheus.MustRegister(metricGauge)
+	prometheus.MustRegister(metricSummary)
 }
 
 func main() {
@@ -72,6 +84,7 @@ func main() {
 	})
 
 	http.HandleFunc("/orders", func(w http.ResponseWriter, r *http.Request) {
+		startTime := time.Now()
 		type Data struct {
 			OrderID int `json:"order_id"`
 		}
@@ -109,6 +122,9 @@ func main() {
 			}
 			_ = json.NewEncoder(w).Encode(responseData)
 		}
+
+		duration := time.Since(startTime)
+		metricSummary.Observe(float64(duration))
 	})
 
 	go func() {
