@@ -42,12 +42,21 @@ var (
 			Objectives: map[float64]float64{0.5: 0.5, 0.9: 0.1, 0.99: 0.001},
 		},
 	)
+
+	metricHistogram = prometheus.NewHistogram(
+		prometheus.HistogramOpts{
+			Namespace: serviceName,
+			Name:      "transaction_processing_time",
+			Buckets:   []float64{0.5, 1, 2},
+		},
+	)
 )
 
 func init() {
 	prometheus.MustRegister(metricCounter)
 	prometheus.MustRegister(metricGauge)
 	prometheus.MustRegister(metricSummary)
+	prometheus.MustRegister(metricHistogram)
 }
 
 func main() {
@@ -125,6 +134,7 @@ func main() {
 
 		duration := time.Since(startTime)
 		metricSummary.Observe(float64(duration))
+		metricHistogram.Observe(float64(duration))
 	})
 
 	go func() {
