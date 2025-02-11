@@ -1,9 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
+	"log"
 	"math/rand"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -18,14 +23,47 @@ var (
 		},
 		[]string{"method", "path", "code"},
 	)
+
+	metricGauge = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace: "golang_app",
+			Name:      "active_users",
+		},
+		[]string{"country_id", "city_id"},
+	)
 )
 
 func init() {
 	prometheus.MustRegister(metricCounter)
+	prometheus.MustRegister(metricGauge)
 }
 
 func main() {
 	println("starting http server ...")
+
+	ctx, cancelSimulationJob := context.WithCancel(context.Background())
+	defer cancelSimulationJob()
+
+	sigCH := make(chan os.Signal, 1)
+	signal.Notify(sigCH, syscall.SIGINT, syscall.SIGTERM)
+
+	go func(ctx context.Context) {
+		for {
+			select {
+			case <-ctx.Done():
+				println("stopping job simulation")
+				return
+			default:
+				log.Printf("sending metrics at %s\n", time.Now().Format(time.RFC3339Nano))
+				metricGauge.WithLabelValues("ID", "JAK").Add(float64(rand.Intn(1000)))
+				time.Sleep(300 * time.Millisecond)
+			}
+		}
+	}(ctx)
+
+	server := http.Server{
+		Addr: ":8080",
+	}
 
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
@@ -73,6 +111,30 @@ func main() {
 		}
 	})
 
-	http.ListenAndServe(":8080", nil)
+	go func() {
+		err := server.ListenAndServe()
+		if err != nil {
+			log.Printf("HTTP server ListenAndServe: %v\n", err)
+		}
+	}()
+
+	// waiting termination signal to stop the program/app
+	<-sigCH
+	log.Print("termination signal received, shutting down...")
+	cancelSimulationJob()
+
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdownCancel()
+
+	shutdownErr := server.Shutdown(shutdownCtx)
+	if shutdownErr != nil {
+		log.Printf("failed to shutdown http server due to error: %s\n", shutdownErr)
+	} else {
+		log.Printf("http server stopped gracefully")
+	}
+
+	// just wait all logs from goroutine is also printed, for debugging purposse
+	time.Sleep(2 * time.Second)
+
 	println("stopped http server")
 }
