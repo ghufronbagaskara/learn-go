@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	pb "grpc-metadata/metadata-example/proto"
+	"io"
 	"log"
 
 	"google.golang.org/grpc"
@@ -26,6 +28,7 @@ func main() {
 	callUnary(client)
 
 	// call stream rpc
+	callStream(client)
 }
 
 func callUnary(client pb.HelloServiceClient) {
@@ -57,6 +60,49 @@ func callUnary(client pb.HelloServiceClient) {
 	fmt.Println()
 
 }
+
+func callStream(client pb.HelloServiceClient){
+	stream, err := client.ServerTime(context.Background(), nil)
+	if err != nil {
+		log.Fatalf("error when calling ServerTime: %v", err)
+	}
+	
+	fmt.Println("---Response From ServerTime---")
+	for {
+		resp, err := stream.Recv()
+		if errors.Is(err, io.EOF) {
+			fmt.Println()
+			break
+		}
+
+		if err != nil {
+			log.Fatalf("error when reading stream: %v", err)
+		}
+
+		fmt.Println(resp.String())
+	}
+
+	fmt.Println("---Metadata From ServerTime---")
+	metadataFromServer, err := stream.Header()
+	if err != nil {
+		log.Fatalf("error when reading metadata: %v", err)
+	}
+
+	for key, val := range deduplicateMD(metadataFromServer) {
+		fmt.Println(key + ":" + val)
+	}
+	fmt.Println()
+
+	fmt.Println("---Trailer From ServerTime---")
+	trailerFromServer := stream.Trailer()
+	for key, val := range deduplicateMD(trailerFromServer) {
+		fmt.Println(key + ":" + val)
+	}
+	fmt.Println()
+
+}
+
+
 
 func deduplicateMD(metadata metadata.MD) map[string]string {
 	metdataReceived := map[string]string{}
