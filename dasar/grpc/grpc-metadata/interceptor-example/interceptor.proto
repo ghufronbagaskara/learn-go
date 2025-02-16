@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package metdata;
+option go_package = "./proto";
+
+import "google/protobuf/empty.proto";
+
+service SecretService {
+  rpc Token(google.protobuf.Empty) returns (TokenResponse) {}
+  rpc Protected(google.protobuf.Empty) returns (ProtectedResponse) {}
+  rpc ProtectedStream(google.protobuf.Empty) returns (stream ProtectedResponse) {}
+}
+
+message TokenResponse {
+  string token = 1;
+}
+message ProtectedResponse {
+  string message = 1;
+}
